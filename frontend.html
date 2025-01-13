@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phoenix AI</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: -5rem auto 3rem;
+    width: 100%;
+    height: 100px; /* Adjusted height for a smaller area */
+}
+
+.logo-image {
+    width: 100px; /* Adjusted width for a smaller image */
+    height: 100px; /* Adjusted height to match container */
+    object-fit: contain; /* Ensures the image is scaled proportionally */
+    border-radius: 8px; /* Slightly smaller border radius */
+    box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 1s ease-out;
+}
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(to right, #60a5fa, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .button {
+            background: #3b82f6;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .button:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        #editor {
+            border-radius: 0.75rem;
+            margin: -2rem auto 3rem;
+            overflow: hidden;
+            height: 500px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .results-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .output-section, .analysis-section {
+            background: #1e293b;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            height: 400px;
+            overflow: auto;
+            opacity: 0;
+            animation: slideUp 0.5s ease-out 0.2s forwards;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #60a5fa;
+        }
+
+        .analysis-card {
+            background: #2d3748;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .analysis-card h3 {
+            color: #a5b4fc;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            background: #374151;
+            color: #60a5fa;
+            margin: 0.25rem 0;
+        }
+
+        .improvement-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .improvement-item::before {
+            content: "•";
+            color: #60a5fa;
+        }
+
+        .resource-link {
+            color: #60a5fa;
+            text-decoration: none;
+            display: block;
+            margin: 0.25rem 0;
+            transition: color 0.3s ease;
+        }
+
+        .resource-link:hover {
+            color: #93c5fd;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            display: none;
+        }
+
+        .editor-widget {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            display: flex;
+            gap: 5px;
+            z-index: 100;
+            background: inherit;
+            padding: 3px;
+            border-radius: 4px;
+        }
+
+        .editor-button {
+            background: transparent;
+            border: 1px solid #020305;
+            color: inherit;
+            padding: 2px 8px;
+            font-size: 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            height: 24px;
+        }
+
+        .editor-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .language-select {
+            background: #000;
+            border: 1px solid #ffffff;
+            color: #ffffff;
+            padding: 2px 4px;
+            font-size: 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            height: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .language-select:focus,
+        .language-select:hover {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #000000;
+        }
+
+        body.vs-light .language-select {
+            background: #ffffff;
+            border: 1px solid #000000;
+            color: #000000;
+        }
+
+        body.vs-light .language-select:focus,
+        body.vs-light .language-select:hover {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #ffffff;
+        }
+
+        .language-select option {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        body.vs-light .language-select option {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .back-button {
+            color: #5c636c;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-button:hover {
+            color: #60a5fa;
+        }
+        .codex-title {
+    font-family: 'Courier New', Courier, monospace; /* Coding font */
+    font-size: 0rem; /* Main title size */
+    text-align: center;
+    font-weight: bold;
+    color: #67a7f5; /* Elegant blue shade */
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Subtle shadow */
+    margin-top: -10px; /* Adjust the spacing */
+    line-height: 1; /* Balanced spacing between lines */
+}
+
+.codex-sub {
+    color: #9da7c1; /* Softer grey for 'Editor' */
+    font-size: 2rem; /* Subtle size difference */
+    display: block; /* Place 'Editor' on a new line */
+    margin-top: 5px;
+    font-family: cursive;;
+}
+
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="landing.html" class="back-button">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Home
+            </a>
+        </nav>
+
+        <div class="logo-container">
+            <img src="Image.jpg" alt="CodeX Logo" class="logo-image">
+        </div>
+
+        <h1 class="codex-title">
+            <span class="codex-sub">PhoenixAI</span>
+        </h1>
+        
+        
+        <div id="editor"></div>
+        
+        <button class="button" id="run">
+            <span>Run Code</span>
+            <div class="loading" id="loading"></div>
+        </button>
+        
+        <div class="results-container">
+            <div class="output-section">
+                <div class="section-title">Output</div>
+                <div id="output">Output will appear here...</div>
+            </div>
+            
+            <div class="analysis-section">
+                <div class="section-title">Code Analysis</div>
+                <div id="analysis">Analysis will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let editor;
+        let currentTheme = 'vs-dark';
+        let currentLanguage = 'python';
+
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            // Create editor
+            editor = monaco.editor.create(document.getElementById('editor'), {
+                value: "# Write your code here\n",
+                language: currentLanguage,
+                theme: currentTheme,
+                fontSize: 14,
+                padding: { top: 16 },
+                minimap: { enabled: true },
+                fontFamily: "'Fira Code', monospace",
+                fontLigatures: true,
+                smoothScrolling: true,
+                cursorSmoothCaretAnimation: true,
+                cursorBlinking: "smooth",
+            });
+
+            // Create widget container
+            const widget = document.createElement('div');
+            widget.className = 'editor-widget';
+
+            // Create language selector
+            const languageSelect = document.createElement('select');
+            languageSelect.className = 'language-select';
+            const languages = [
+    { value: 'python', label: 'Python' },
+    { value: 'javascript', label: 'JavaScript' },
+    { value: 'cpp', label: 'C++' },
+    { value: 'java', label: 'Java' },
+    { value: 'html', label: 'HTML' },
+    { value: 'css', label: 'CSS' },
+    { value: 'php', label: 'PHP' },
+    { value: 'ruby', label: 'Ruby' },
+    { value: 'csharp', label: 'C#' },
+    { value: 'go', label: 'Go' },
+    { value: 'rust', label: 'Rust' },
+    { value: 'swift', label: 'Swift' },
+    { value: 'kotlin', label: 'Kotlin' },
+    { value: 'typescript', label: 'TypeScript' },
+    { value: 'shell', label: 'Shell' },
+    { value: 'r', label: 'R' },
+    { value: 'perl', label: 'Perl' },
+    { value: 'sql', label: 'SQL' },
+];
+            languages.forEach(lang => {
+                const option = document.createElement('option');
+                option.value = lang.value;
+                option.textContent = lang.label;
+                languageSelect.appendChild(option);
+            });
+
+            // Create theme toggle button
+            const themeButton = document.createElement('button');
+            themeButton.className = 'editor-button';
+            themeButton.textContent = '☀️';
+
+            // Add elements to widget
+            widget.appendChild(languageSelect);
+            widget.appendChild(themeButton);
+
+            // Add widget to editor
+            const editorNode = editor.getDomNode();
+            if (editorNode) {
+                const firstChild = editorNode.firstChild;
+                if (firstChild) {
+                    firstChild.appendChild(widget);
+                }
+            }
+
+            // Language change handler
+            languageSelect.addEventListener('change', (e) => {
+                currentLanguage = e.target.value;
+                monaco.editor.setModelLanguage(editor.getModel(), currentLanguage);
+                
+                const defaults = {
+    python: "# Python code here\n\ndef main():\n    print('Hello, World!')\n\nif __name__ == '__main__':\n    main()",
+    javascript: "// JavaScript code here\n\nconsole.log('Hello, World!');",
+    cpp: "// C++ code here\n\n#include <iostream>\n\nint main() {\n    std::cout << \"Hello, World!\" << std::endl;\n    return 0;\n}",
+    java: "// Java code here\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}",
+    html: "<!-- HTML code here -->\n\n<!DOCTYPE html>\n<html>\n<head>\n    <title>Hello, World!</title>\n</head>\n<body>\n    <h1>Hello, World!</h1>\n</body>\n</html>",
+    css: "/* CSS code here */\n\nbody {\n    font-family: Arial, sans-serif;\n    background-color: #f0f0f0;\n    color: #333;\n}",
+    php: "<?php\n// PHP code here\necho 'Hello, World!';\n?>",
+    ruby: "# Ruby code here\n\ndef main\n  puts 'Hello, World!'\nend\n\nmain",
+    csharp: "// C# code here\n\nusing System;\n\nclass Program {\n    static void Main() {\n        Console.WriteLine(\"Hello, World!\");\n    }\n}",
+    go: "// Go code here\n\npackage main\n\nimport \"fmt\"\n\nfunc main() {\n    fmt.Println(\"Hello, World!\")\n}",
+    rust: "// Rust code here\n\nfn main() {\n    println!(\"Hello, World!\");\n}",
+    swift: "// Swift code here\n\nimport Foundation\n\nprint(\"Hello, World!\")",
+    kotlin: "// Kotlin code here\n\nfun main() {\n    println(\"Hello, World!\")\n}",
+    typescript: "// TypeScript code here\n\nconsole.log('Hello, World!');",
+    shell: "# Shell script here\n\necho 'Hello, World!'",
+    r: "# R code here\n\nprint(\"Hello, World!\")",
+    perl: "# Perl code here\n\nprint \"Hello, World!\\n\";",
+    sql: "-- SQL code here\n\nSELECT 'Hello, World!' AS Greeting;"
+};
+
+                editor.setValue(defaults[currentLanguage]);
+            });
+
+            // Theme toggle handler
+            themeButton.addEventListener('click', () => {
+                currentTheme = currentTheme === 'vs-dark' ? 'vs-light' : 'vs-dark';
+                monaco.editor.setTheme(currentTheme);
+                themeButton.textContent = currentTheme === 'vs-dark' ? '☀️' : '🌙';
+                
+                if (currentTheme === 'vs-light') {
+                    document.body.classList.add('vs-light');
+                    document.body.classList.remove('vs-dark');
+                } else {
+                    document.body.classList.add('vs-dark');
+                    document.body.classList.remove('vs-light');
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                editor.layout();
+            });
+        });
+
+        // Function to create analysis cards
+        function createAnalysisCard(title, content) {
+            return `
+                <div class="analysis-card">
+                    <h3>${title}</h3>
+                    ${content}
+                </div>
+            `;
+        }
+
+        // Run Button
+        document.getElementById('run').addEventListener('click', async () => {
+            const loadingSpinner = document.getElementById('loading');
+            const runButton = document.getElementById('run');
+            const output = document.getElementById('output');
+            const analysis = document.getElementById('analysis');
+            
+            try {
+                loadingSpinner.style.display = 'inline-block';
+                runButton.disabled = true;
+                
+                const code = editor.getValue();
+                
+                const response = await fetch('http://localhost:5000/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, language: currentLanguage })
+                });
+
+                const result = await response.json();
+                
+                // Update output
+                output.style.opacity = '0';
+                output.style.transform = 'translateY(20px)';
+                
+                // Update analysis
+                analysis.style.opacity = '0';
+                analysis.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    // Set output
+                    output.innerText = result.output || 'No output';
+                    output.style.opacity = '1';
+                    output.style.transform = 'translateY(0)';
+                    
+                    // Create analysis content
+                    const analysisContent = `
+                        ${createAnalysisCard('Summary', `<p>${result.analysis.summary}</p>`)}
+                        
+                        ${createAnalysisCard('Complexity', `
+                            <div class="complexity-badge">Time: ${result.analysis.complexity_analysis.time_complexity.html}</div>
+                            <div class="complexity-badge">Space: ${result.analysis.complexity_analysis.space_complexity}</div>
+                            <p style="margin-top: 0.75rem; color: #94a3b8; font-size: 0.875rem;">
+                                ${result.analysis.complexity_analysis.explanation}
+                            </p>
+                        `)}
+                        
+                        ${createAnalysisCard('Suggested Improvements', `
+                            ${result.analysis.suggested_improvements.map(imp => `
+                                <div class="improvement-item">${imp}</div>
+                            `).join('')}
+                        `)}
+                        
+                        ${createAnalysisCard('Learning Resources', `
+                            ${result.analysis.learning_resources.map(res => `
+                                <a href="${res.url}" target="_blank" class="resource-link">${res.title}</a>
+                            `).join('')}
+                        `)}
+                    `;
+                    
+                    analysis.innerHTML = analysisContent;
+                    analysis.style.opacity = '1';
+                    analysis.style.transform = 'translateY(0)';
+                }, 200);
+
+            } catch (error) {
+                output.innerText = "Error connecting to server: " + error.message;
+                analysis.innerHTML = createAnalysisCard('Error', 'Failed to analyze code. Please try again.');
+            } finally {
+                loadingSpinner.style.display = 'none';
+                runButton.disabled = false;
+            }
+        });
+
+        // Add error handling for editor loading
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo + '\nColumn: ' + columnNo + '\nError object: ' + JSON.stringify(error));
+            return false;
+        };
+    </script>
+</body>
+</html>

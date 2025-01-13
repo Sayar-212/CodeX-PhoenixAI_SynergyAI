@@ -1,0 +1,137 @@
+{
+    "training_data": [
+      {
+        "code": "def linear_search(arr, target):\n    for i in range(len(arr)):\n        if arr[i] == target:\n            return i\n    return -1",
+        "complexity": "O(n)",
+        "description": "Linear search through array",
+        "explanation": "Traverses through each element once, making it linear time complexity"
+      },
+      {
+        "code": "def binary_search(arr, target):\n    left, right = 0, len(arr) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return -1",
+        "complexity": "O(log n)",
+        "description": "Binary search implementation",
+        "explanation": "Divides search space in half each iteration"
+      },
+      {
+        "code": "def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n - i - 1):\n            if arr[j] > arr[j + 1]:\n                arr[j], arr[j + 1] = arr[j + 1], arr[j]\n    return arr",
+        "complexity": "O(n²)",
+        "description": "Bubble sort algorithm",
+        "explanation": "Uses nested loops to compare and swap adjacent elements"
+      },
+      {
+        "code": "def insertion_sort(arr):\n    for i in range(1, len(arr)):\n        key = arr[i]\n        j = i - 1\n        while j >= 0 and key < arr[j]:\n            arr[j + 1] = arr[j]\n            j -= 1\n        arr[j + 1] = key\n    return arr",
+        "complexity": "O(n²)",
+        "description": "Insertion sort algorithm",
+        "explanation": "Builds a sorted array one element at a time by inserting each new element into its correct position"
+      },
+      {
+        "code": "def selection_sort(arr):\n    for i in range(len(arr)):\n        min_idx = i\n        for j in range(i + 1, len(arr)):\n            if arr[j] < arr[min_idx]:\n                min_idx = j\n        arr[i], arr[min_idx] = arr[min_idx], arr[i]\n    return arr",
+        "complexity": "O(n²)",
+        "description": "Selection sort algorithm",
+        "explanation": "Repeatedly selects the smallest element from the unsorted part and places it at the beginning"
+      },
+      {
+        "code": "def merge_sort(arr):\n    if len(arr) > 1:\n        mid = len(arr) // 2\n        left_half = arr[:mid]\n        right_half = arr[mid:]\n\n        merge_sort(left_half)\n        merge_sort(right_half)\n\n        i = j = k = 0\n\n        while i < len(left_half) and j < len(right_half):\n            if left_half[i] < right_half[j]:\n                arr[k] = left_half[i]\n                i += 1\n            else:\n                arr[k] = right_half[j]\n                j += 1\n            k += 1\n\n        while i < len(left_half):\n            arr[k] = left_half[i]\n            i += 1\n            k += 1\n\n        while j < len(right_half):\n            arr[k] = right_half[j]\n            j += 1\n            k += 1\n    return arr",
+        "complexity": "O(n log n)",
+        "description": "Merge sort algorithm",
+        "explanation": "Divides the array into halves, sorts each half, and merges them back together"
+      },
+      {
+        "code": "def quick_sort(arr):\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quick_sort(left) + middle + quick_sort(right)",
+        "complexity": "O(n log n)",
+        "description": "Quick sort algorithm",
+        "explanation": "Uses a pivot to partition the array into smaller sub-arrays and sorts recursively"
+      },
+      {
+        "code": "def heapify(arr, n, i):\n    largest = i\n    left = 2 * i + 1\n    right = 2 * i + 2\n\n    if left < n and arr[left] > arr[largest]:\n        largest = left\n\n    if right < n and arr[right] > arr[largest]:\n        largest = right\n\n    if largest != i:\n        arr[i], arr[largest] = arr[largest], arr[i]\n        heapify(arr, n, largest)\n\ndef heap_sort(arr):\n    n = len(arr)\n    for i in range(n // 2 - 1, -1, -1):\n        heapify(arr, n, i)\n    for i in range(n - 1, 0, -1):\n        arr[i], arr[0] = arr[0], arr[i]\n        heapify(arr, i, 0)\n    return arr",
+        "complexity": "O(n log n)",
+        "description": "Heap sort algorithm",
+        "explanation": "Builds a max heap and repeatedly extracts the maximum element to sort the array"
+      },
+      {
+        "code": "def counting_sort(arr):\n    max_val = max(arr)\n    count = [0] * (max_val + 1)\n\n    for num in arr:\n        count[num] += 1\n\n    index = 0\n    for i in range(len(count)):\n        while count[i] > 0:\n            arr[index] = i\n            index += 1\n            count[i] -= 1\n    return arr",
+        "complexity": "O(n + k)",
+        "description": "Counting sort algorithm",
+        "explanation": "Counts occurrences of each element and constructs the sorted array"
+      },
+      {
+        "code": "def radix_sort(arr):\n    max_val = max(arr)\n    exp = 1\n\n    while max_val // exp > 0:\n        counting_sort_exp(arr, exp)\n        exp *= 10\n\ndef counting_sort_exp(arr, exp):\n    n = len(arr)\n    output = [0] * n\n    count = [0] * 10\n\n    for i in arr:\n        index = (i // exp) % 10\n        count[index] += 1\n\n    for i in range(1, 10):\n        count[i] += count[i - 1]\n\n    for i in range(n - 1, -1, -1):\n        index = (arr[i] // exp) % 10\n        output[count[index] - 1] = arr[i]\n        count[index] -= 1\n\n    for i in range(n):\n        arr[i] = output[i]",
+        "complexity": "O(nk)",
+        "description": "Radix sort algorithm",
+        "explanation": "Sorts elements by digit, starting from the least significant digit"
+      },
+      {
+        "code": "def bellman_ford(graph, start):\n    dist = {vertex: float('infinity') for vertex in graph}\n    dist[start] = 0\n    for _ in range(len(graph) - 1):\n        for u in graph:\n            for v, weight in graph[u].items():\n                if dist[u] + weight < dist[v]:\n                    dist[v] = dist[u] + weight\n    return dist",
+        "complexity": "O(V * E)",
+        "description": "Bellman-Ford algorithm",
+        "explanation": "Finds the shortest paths from a start node to all other nodes, even with negative weights"
+      },
+      {
+        "code": "def dijkstra(graph, start):\n    dist = {vertex: float('infinity') for vertex in graph}\n    dist[start] = 0\n    pq = [(0, start)]\n    while pq:\n        current_dist, current_vertex = heapq.heappop(pq)\n        if current_dist > dist[current_vertex]:\n            continue\n        for neighbor, weight in graph[current_vertex].items():\n            distance = current_dist + weight\n            if distance < dist[neighbor]:\n                dist[neighbor] = distance\n                heapq.heappush(pq, (distance, neighbor))\n    return dist",
+        "complexity": "O((V + E) log V)",
+        "description": "Dijkstra's algorithm for shortest paths",
+        "explanation": "Finds the shortest paths from a source node to all other nodes"
+      },
+      {
+        "code": "def floyd_warshall(graph):\n    dist = {i: {j: float('inf') for j in graph} for i in graph}\n    for i in graph:\n        dist[i][i] = 0\n    for i in graph:\n        for j, weight in graph[i].items():\n            dist[i][j] = weight\n    for k in graph:\n        for i in graph:\n            for j in graph:\n                if dist[i][j] > dist[i][k] + dist[k][j]:\n                    dist[i][j] = dist[i][k] + dist[k][j]\n    return dist",
+        "complexity": "O(V³)",
+        "description": "Floyd-Warshall algorithm for all-pairs shortest paths",
+        "explanation": "Finds the shortest paths between all pairs of vertices in a graph"
+      },
+      {
+        "code": "def topological_sort(graph):\n    in_degree = {u: 0 for u in graph}\n    for u in graph:\n        for v in graph[u]:\n            in_degree[v] += 1\n    queue = [u for u in graph if in_degree[u] == 0]\n    result = []\n    while queue:\n        u = queue.pop(0)\n        result.append(u)\n        for v in graph[u]:\n            in_degree[v] -= 1\n            if in_degree[v] == 0:\n                queue.append(v)\n    return result",
+        "complexity": "O(V + E)",
+        "description": "Topological sort for directed acyclic graphs (DAG)",
+        "explanation": "Orders vertices in a directed graph such that for every directed edge u → v, u comes before v"
+      },
+      {
+        "code": "def knapsack(weights, values, capacity):\n    n = len(weights)\n    dp = [[0 for _ in range(capacity + 1)] for _ in range(n + 1)]\n    for i in range(1, n + 1):\n        for w in range(1, capacity + 1):\n            if weights[i - 1] <= w:\n                dp[i][w] = max(dp[i - 1][w], dp[i - 1][w - weights[i - 1]] + values[i - 1])\n            else:\n                dp[i][w] = dp[i - 1][w]\n    return dp[n][capacity]",
+        "complexity": "O(n * capacity)",
+        "description": "Knapsack problem (0/1) dynamic programming solution",
+        "explanation": "Finds the maximum value of items that can be carried without exceeding capacity"
+      },
+      {
+        "code": "def fibonacci(n):\n    if n <= 1:\n        return n\n    prev, curr = 0, 1\n    for _ in range(2, n + 1):\n        prev, curr = curr, prev + curr\n    return curr",
+        "complexity": "O(n)",
+        "description": "Fibonacci sequence (dynamic programming)",
+        "explanation": "Efficient calculation of the nth Fibonacci number using iterative approach"
+      },
+      {
+        "code": "def longest_common_subsequence(str1, str2):\n    m, n = len(str1), len(str2)\n    dp = [[0] * (n + 1) for _ in range(m + 1)]\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if str1[i - 1] == str2[j - 1]:\n                dp[i][j] = dp[i - 1][j - 1] + 1\n            else:\n                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])\n    return dp[m][n]",
+        "complexity": "O(m * n)",
+        "description": "Longest common subsequence using dynamic programming",
+        "explanation": "Finds the longest subsequence that appears in both strings"
+      },
+      {
+        "code": "def longest_increasing_subsequence(arr):\n    n = len(arr)\n    dp = [1] * n\n    for i in range(1, n):\n        for j in range(i):\n            if arr[i] > arr[j]:\n                dp[i] = max(dp[i], dp[j] + 1)\n    return max(dp)",
+        "complexity": "O(n²)",
+        "description": "Longest increasing subsequence using dynamic programming",
+        "explanation": "Finds the longest subsequence of strictly increasing elements"
+      },
+      {
+        "code": "def sieve_of_eratosthenes(n):\n    primes = [True] * (n + 1)\n    primes[0], primes[1] = False, False\n    for p in range(2, int(n ** 0.5) + 1):\n        if primes[p]:\n            for i in range(p * p, n + 1, p):\n                primes[i] = False\n    return [p for p in range(2, n + 1) if primes[p]]",
+        "complexity": "O(n log log n)",
+        "description": "Sieve of Eratosthenes for finding all primes up to n",
+        "explanation": "Efficiently generates all prime numbers less than or equal to n"
+      },
+      {
+        "code": "def ternary_search(arr, target):\n    left, right = 0, len(arr) - 1\n    while right >= left:\n        mid1 = left + (right - left) // 3\n        mid2 = right - (right - left) // 3\n        if arr[mid1] == target:\n            return mid1\n        if arr[mid2] == target:\n            return mid2\n        if target < arr[mid1]:\n            right = mid1 - 1\n        elif target > arr[mid2]:\n            left = mid2 + 1\n        else:\n            left, right = mid1 + 1, mid2 - 1\n    return -1",
+        "complexity": "O(log₃ n)",
+        "description": "Ternary search in a sorted array",
+        "explanation": "Divides the array into three parts and compares the target with two midpoints"
+      },
+      {
+        "code": "def a_star_search(graph, start, end):\n    open_set = {start}\n    came_from = {}\n    g_score = {node: float('inf') for node in graph}\n    g_score[start] = 0\n    f_score = {node: float('inf') for node in graph}\n    f_score[start] = heuristic(start, end)\n    while open_set:\n        current = min(open_set, key=lambda x: f_score[x])\n        if current == end:\n            return reconstruct_path(came_from, current)\n        open_set.remove(current)\n        for neighbor in graph[current]:\n            tentative_g_score = g_score[current] + graph[current][neighbor]\n            if tentative_g_score < g_score[neighbor]:\n                came_from[neighbor] = current\n                g_score[neighbor] = tentative_g_score\n                f_score[neighbor] = g_score[neighbor] + heuristic(neighbor, end)\n                open_set.add(neighbor)\n    return None",
+        "complexity": "O(E log V)",
+        "description": "A* search algorithm for pathfinding",
+        "explanation": "Finds the shortest path from start to end using heuristic estimates"
+      },
+      {
+        "code": "def binary_tree_traversal(root):\n    if root:\n        print(root.value)\n        binary_tree_traversal(root.left)\n        binary_tree_traversal(root.right)",
+        "complexity": "O(n)",
+        "description": "Binary tree traversal (pre-order)",
+        "explanation": "Visits each node in a binary tree in a top-down manner"
+      }
+    ]
+  }
+  

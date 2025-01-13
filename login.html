@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeX - Login</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+
+    :root {
+      --neon-blue: #00ff9d;
+      --dark-bg: #0a192f;
+      --terminal-green: #64ffda;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'JetBrains Mono', monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: var(--dark-bg);
+      color: var(--terminal-green);
+      overflow: hidden;
+    }
+
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      color: var(--terminal-green);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0.8;
+      transition: opacity 0.3s ease;
+      z-index: 1000;
+    }
+
+    .back-button:hover {
+      opacity: 1;
+    }
+
+    /* Floating terms animation */
+    .tech-terms {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      perspective: 1000px;
+    }
+
+    .floating-term {
+      position: absolute;
+      color: var(--terminal-green);
+      opacity: 0.1;
+      animation: float 15s linear infinite;
+      white-space: nowrap;
+      transform-style: preserve-3d;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) translateX(-50%) rotateX(45deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.1;
+      }
+      90% {
+        opacity: 0.1;
+      }
+      100% {
+        transform: translateY(-100vh) translateX(50%) rotateX(45deg);
+        opacity: 0;
+      }
+    }
+
+    /* Success Modal Styles */
+    .success-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 25, 47, 0.95);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .success-modal.show {
+      display: flex;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .success-box {
+      background: rgba(100, 255, 218, 0.1);
+      border: 2px solid var(--terminal-green);
+      border-radius: 10px;
+      padding: 40px;
+      text-align: center;
+      animation: scaleIn 0.5s ease-out;
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .checkmark {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: block;
+      stroke-width: 2;
+      stroke: var(--terminal-green);
+      stroke-miterlimit: 10;
+      margin: 10% auto;
+      box-shadow: 0 0 20px var(--terminal-green);
+      animation: fillCircle 0.4s ease-in-out 0.4s forwards,
+                scale 0.3s ease-in-out 0.9s both;
+    }
+
+    .checkmark__circle {
+      stroke-dasharray: 166;
+      stroke-dashoffset: 166;
+      stroke-width: 2;
+      stroke-miterlimit: 10;
+      fill: none;
+      animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .checkmark__check {
+      transform-origin: 50% 50%;
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+    }
+
+    @keyframes stroke {
+      100% { stroke-dashoffset: 0; }
+    }
+
+    @keyframes scale {
+      0%, 100% { transform: none; }
+      50% { transform: scale3d(1.1, 1.1, 1); }
+    }
+
+    @keyframes fillCircle {
+      100% { box-shadow: inset 0 0 0 100px rgba(100, 255, 218, 0.1); }
+    }
+
+    .success-text {
+      color: var(--terminal-green);
+      font-size: 24px;
+      margin-top: 20px;
+      opacity: 0;
+      animation: slideUp 0.5s ease-out 1s forwards;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .success-code {
+      color: var(--terminal-green);
+      font-family: 'JetBrains Mono', monospace;
+      opacity: 0;
+      animation: typeWriter 1s steps(40) 1.5s forwards;
+      text-align: left;
+      margin-top: 20px;
+    }
+
+    @keyframes typeWriter {
+      from { width: 0; opacity: 0; }
+      to { width: 100%; opacity: 0.7; }
+    }
+
+    .login-container {
+      background: rgba(10, 25, 47, 0.95);
+      border: 1px solid var(--terminal-green);
+      border-radius: 8px;
+      padding: 40px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 0 20px rgba(100, 255, 218, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-container::before {
+      content: '/* Login Form */';
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: rgba(100, 255, 218, 0.3);
+      font-size: 12px;
+    }
+
+    h2 {
+      color: var(--neon-blue);
+      font-size: 1.8em;
+      margin-bottom: 30px;
+      text-align: center;
+      position: relative;
+    }
+
+    h2::before {
+      content: 'function';
+      font-size: 0.5em;
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(100, 255, 218, 0.5);
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .input-group::before {
+      content: 'const';
+      position: absolute;
+      left: -40px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(100, 255, 218, 0.5);
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 40px 12px 15px;
+      background: rgba(100, 255, 218, 0.05);
+      border: 1px solid rgba(100, 255, 218, 0.2);
+      border-radius: 4px;
+      color: var(--terminal-green);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--terminal-green);
+      box-shadow: 0 0 10px rgba(100, 255, 218, 0.2);
+    }
+
+    .input-group input::placeholder {
+      color: rgba(100, 255, 218, 0.5);
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--terminal-green);
+      opacity: 0.8;
+      transition: all 0.3s ease;
+      background: none;
+      border: none;
+      padding: 0;
+      z-index: 2;
+    }
+
+    .password-toggle:hover {
+      opacity: 1;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      border: 1px solid var(--terminal-green);
+      color: var(--terminal-green);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+
+    button[type="submit"]:hover {
+      background: rgba(100, 255, 218, 0.1);
+      box-shadow: 0 0 15px rgba(100, 255, 218, 0.3);
+    }
+
+    .forgot-pwd {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .forgot-pwd a {
+      color: var(--terminal-green);
+      text-decoration: none;
+      font-size: 12px;
+      opacity: 0.8;
+      transition: all 0.3s ease;
+    }
+
+    .forgot-pwd a:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+
+    .social-icons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 30px;
+      border-top: 1px solid rgba(100, 255, 218, 0.2);
+      padding-top: 20px;
+    }
+
+    .social-icons span {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0.8;
+      font-size: 18px;
+    }
+
+    .social-icons span:hover {
+      opacity: 1;
+      transform: translateY(-2px);
+    }
+
+    .error-message {
+      color: #ff6b6b;
+      font-size: 14px;
+      margin-top: 10px;
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-button">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+    Back
+  </a>
+
+  <div class="tech-terms" id="tech-terms"></div>
+
+  <div class="success-modal" id="successModal">
+    <div class="success-box">
+      <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+        <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+        <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+      </svg>
+      <div class="success-text">Login Successful!</div>
+      <pre class="success-code">
+// Status: 200 OK
+// Access granted...
+// Redirecting to dashboard...</pre>
+    </div>
+  </div>
+
+  <div class="login-container">
+    <h2>Login.init()</h2>
+    <form id="loginForm">
+      <div class="input-group">
+        <input type="text" id="username" placeholder="username = " required>
+      </div>
+      <div class="input-group">
+        <input type="password" id="password" placeholder="password = " required>
+        <button type="button" id="toggle-password" class="password-toggle">👁️</button>
+      </div>
+      <div class="error-message" id="errorMessage"></div>
+      <button type="submit">execute(login)</button>
+    </form>
+    <div class="forgot-pwd">
+      <a href="#">// reset password</a>
+    </div>
+    <div class="social-icons">
+      <span>🌐</span>
+      <span>🐙</span>
+      <span>📧</span>
+      <span>🔗</span>
+    </div>
+  </div>
+
+  <script>
+    // Password toggle functionality
+    const togglePassword = document.getElementById('toggle-password');
+    const passwordField = document.getElementById('password');
+    const errorMessage = document.getElementById('errorMessage');
+
+    togglePassword.addEventListener('click', () => {
+      const type = passwordField.type === 'password' ? 'text' : 'password';
+      passwordField.type = type;
+      togglePassword.textContent = type === 'password' ? '👁️' : '🙈';
+    });
+
+    // Technical terms background
+    const terms = [
+      'async/await', 'Promise.all()', 'useState()', 'useEffect()', 
+      'Docker', 'Kubernetes', 'REST API', 'GraphQL',
+      'git commit', 'git push', 'npm install', 'yarn add',
+      'middleware', 'dependency injection', 'CI/CD pipeline',
+      'JWT token', 'OAuth 2.0', 'CORS policy', 'WebSocket',
+      'MongoDB', 'PostgreSQL', 'Redis cache', 'AWS Lambda',
+      'React hooks', 'Virtual DOM', 'Redux store', 'TypeScript',
+      'Node.js', 'Express', 'Django', 'Flask', 'Spring Boot',
+      'DevOps', 'Agile', 'Scrum', 'Code review', 'Pull request',
+      'Microservices', 'Docker compose', 'Unit testing', 'ESLint',
+      'webpack', 'Babel', 'npm run build', 'git merge',
+      'const', 'let', 'var', 'function', 'class Component',
+      '=> {}', 'import from', 'export default', 'npm start'
+    ];
+    function createFloatingTerm() {
+      const container = document.getElementById('tech-terms');
+      const term = document.createElement('div');
+      term.className = 'floating-term';
+      term.textContent = terms[Math.floor(Math.random() * terms.length)];
+      term.style.left = Math.random() * 100 + 'vw';
+      term.style.fontSize = Math.random() * (24 - 12) + 12 + 'px';
+      container.appendChild(term);
+      
+      term.addEventListener('animationend', () => {
+        term.remove();
+      });
+    }
+     // Create new terms at random intervals
+     setInterval(createFloatingTerm, 1000);
+
+// Initialize with some terms
+for(let i = 0; i < 20; i++) {
+  createFloatingTerm();
+}
+
+// Form submission and success animation
+// Form submission and success animation
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const successModal = document.getElementById('successModal');
+  
+  // Set login state in localStorage
+  localStorage.setItem('isLoggedIn', 'true');
+  
+  // Show success animation
+  successModal.classList.add('show');
+  
+  // Redirect to index.html after animation completes
+  setTimeout(() => {
+    window.location.href = 'landing.html';  // Changed from landing.html to index.html
+  }, 4000);
+});
+</script>
+</body>
+</html>
